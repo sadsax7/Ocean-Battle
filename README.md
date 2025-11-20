@@ -52,4 +52,4 @@ Todo con estética **pixel art** y una interfaz tipo **arcade retro** en la part
 - Click en **“1 jugador”** o **“2 jugadores”** con el mouse  
 - Atajos de teclado:
   - `1` → Iniciar en modo 1 jugador
-  - `2` → Iniciar en modo 1v1 (2 jugadores)
+  - `2` → Iniciar en modo 1v1 (2 jugadores)git
