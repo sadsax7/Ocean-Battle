@@ -43,6 +43,9 @@ export class GameScene extends Phaser.Scene {
         const W = this.scale.width;
         const H = this.scale.height;
 
+        // ¿Es móvil? (Phaser lo da listo)
+        this.isMobile = !this.sys.game.device.os.desktop;
+
         // Fondo océano animado
         const tex = this.textures.get('bg_ocean').getSourceImage();
         const bgW = tex.width;
@@ -101,6 +104,11 @@ export class GameScene extends Phaser.Scene {
             left: Phaser.Input.Keyboard.KeyCodes.A,
             right: Phaser.Input.Keyboard.KeyCodes.D
         });
+
+        // Si es móvil, activo controles táctiles
+        if (this.isMobile) {
+            this.enableTouchControls();
+        }
 
         // === HUD HTML (marcador y tiempo) ===
         this.scoreP1 = 0;
@@ -192,6 +200,32 @@ export class GameScene extends Phaser.Scene {
             loop: true
         });
     }
+
+    enableTouchControls() {
+        // Posición hacia donde quiere ir el jugador
+        this.mobileTarget = null;
+
+        // Cuando tocas la pantalla, el buzo va hacia ese punto
+        this.input.on('pointerdown', (pointer) => {
+            this.mobileTarget = { x: pointer.worldX, y: pointer.worldY };
+        });
+
+        // Si mantienes el dedo presionado y lo arrastras, el objetivo se actualiza
+        this.input.on('pointermove', (pointer) => {
+            if (pointer.isDown) {
+                this.mobileTarget = { x: pointer.worldX, y: pointer.worldY };
+            }
+        });
+
+        // Cuando levantas el dedo, se detiene
+        this.input.on('pointerup', () => {
+            this.mobileTarget = null;
+            if (this.player1 && this.player1.body) {
+                this.player1.body.setVelocity(0);
+            }
+        });
+    }
+
 
     // ==== Animaciones buzos (diver_sheet) ====
     createDiverAnimations() {
@@ -531,6 +565,17 @@ export class GameScene extends Phaser.Scene {
             return;
         }
 
+        // Desktop vs móvil
+        if (this.isMobile) {
+            this.updateMobileMovement();
+        } else {
+            this.updateDesktopMovement();
+        }
+    }
+
+
+    // Movimiento clásico con teclado (lo que ya tenías)
+    updateDesktopMovement() {
         this.player1.body.setVelocity(0);
         if (this.player2) this.player2.body.setVelocity(0);
 
@@ -562,6 +607,35 @@ export class GameScene extends Phaser.Scene {
             this.updatePlayerAnimation(this.player2);
         }
     }
+
+    // Movimiento en móvil: el buzo sigue el dedo
+    updateMobileMovement() {
+        if (!this.player1 || !this.player1.body) return;
+
+        this.player1.body.setVelocity(0);
+
+        if (!this.mobileTarget) {
+            this.updatePlayerAnimation(this.player1);
+            return;
+        }
+
+        const dx = this.mobileTarget.x - this.player1.x;
+        const dy = this.mobileTarget.y - this.player1.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist < 4) {
+            this.player1.body.setVelocity(0);
+            this.updatePlayerAnimation(this.player1);
+            return;
+        }
+
+        const vx = (dx / dist) * this.playerSpeed;
+        const vy = (dy / dist) * this.playerSpeed;
+
+        this.player1.body.setVelocity(vx, vy);
+        this.updatePlayerAnimation(this.player1);
+    }
+
 
     updatePlayerAnimation(sprite) {
         if (!sprite) return;
