@@ -105,7 +105,7 @@ export class GameScene extends Phaser.Scene {
         // === HUD HTML (marcador y tiempo) ===
         this.scoreP1 = 0;
         this.scoreP2 = 0;
-        this.timeLeft = 60;
+        this.timeLeft = 2;
 
         this.scoreDisplayEl = document.getElementById('score-display');
         this.timerDisplayEl = document.getElementById('timer-display');
@@ -379,6 +379,7 @@ export class GameScene extends Phaser.Scene {
         if (this.gameOver) return;
         this.gameOver = true;
 
+        // Pausar spawns y timer
         this.spawnTrashEvent.paused = true;
         this.spawnFishEvent.paused = true;
         this.timerEvent.paused = true;
@@ -389,13 +390,25 @@ export class GameScene extends Phaser.Scene {
         const W = this.scale.width;
         const H = this.scale.height;
 
-        this.add.rectangle(W / 2, H / 2, 520, 260, 0x000000, 0.7);
+        // Fondo del panel final
+        this.add.rectangle(W / 2, H / 2, 520, 260, 0x000000, 0.65);
 
-        this.add.text(W / 2, H / 2 - 60, '¡Fin de la partida!', {
+        // Título
+        this.add.text(W / 2, H / 2 - 70, '¡Fin de la partida!', {
+            fontFamily: '"Share Tech Mono", monospace',
             fontSize: '28px',
-            color: '#ffffff'
+            color: '#ffffff',
+            shadow: {
+                offsetX: 0,
+                offsetY: 0,
+                color: '#00f5ff',
+                blur: 3,
+                stroke: true,
+                fill: true
+            }
         }).setOrigin(0.5);
 
+        // Marcador
         let scoreLine;
         if (this.numPlayers === 2) {
             scoreLine = `P1: ${this.scoreP1}   |   P2: ${this.scoreP2}`;
@@ -403,11 +416,13 @@ export class GameScene extends Phaser.Scene {
             scoreLine = `Puntos: ${this.scoreP1}`;
         }
 
-        this.add.text(W / 2, H / 2 - 20, scoreLine, {
+        this.add.text(W / 2, H / 2 - 35, scoreLine, {
+            fontFamily: '"Share Tech Mono", monospace',
             fontSize: '22px',
             color: '#ffffff'
         }).setOrigin(0.5);
 
+        // Mensaje de ganador
         let winnerText = '';
         if (this.numPlayers === 2) {
             if (this.scoreP1 > this.scoreP2) {
@@ -421,21 +436,87 @@ export class GameScene extends Phaser.Scene {
             winnerText = '🌊 ¡Buen trabajo cuidando el océano!';
         }
 
-        this.add.text(W / 2, H / 2 + 20, winnerText, {
+        this.add.text(W / 2, H / 2, winnerText, {
+            fontFamily: '"Share Tech Mono", monospace',
             fontSize: '20px',
             color: '#ffffff'
         }).setOrigin(0.5);
 
+        // ===== Botón "Jugar de nuevo" =====
+        const btnWidth = 240;
+        const btnHeight = 50;
+        const btnY = H / 2 + 55;
+
+        const btn = this.add.rectangle(W / 2, btnY, btnWidth, btnHeight, 0x0284c7)
+            .setStrokeStyle(2, 0x38bdf8)
+            .setInteractive({ useHandCursor: true });
+
+        const btnText = this.add.text(W / 2, btnY, '↻  Jugar de nuevo', {
+            fontFamily: '"Share Tech Mono", monospace',
+            fontSize: '20px',
+            color: '#eefdff',
+            shadow: {
+                offsetX: 0,
+                offsetY: 0,
+                color: '#00f5ff',
+                blur: 3,
+                stroke: true,
+                fill: true
+            }
+        }).setOrigin(0.5);
+
+        // Hover
+        const hover = (over) => {
+            this.tweens.add({
+                targets: [btn, btnText],
+                scaleX: over ? 1.06 : 1,
+                scaleY: over ? 1.06 : 1,
+                duration: 120,
+                ease: 'Sine.easeOut'
+            });
+        };
+
+        btn.on('pointerover', () => hover(true));
+        btn.on('pointerout', () => hover(false));
+
+        btn.on('pointerdown', () => {
+            // Pequeña animación de clic
+            this.tweens.add({
+                targets: [btn, btnText],
+                scaleX: 0.95,
+                scaleY: 0.95,
+                yoyo: true,
+                duration: 90,
+                ease: 'Quad.easeOut',
+                onComplete: () => {
+                    // Reinicia la escena con el mismo número de jugadores
+                    this.scene.start('MenuScene');
+
+                }
+            });
+        });
+
+        // Mensaje pequeño debajo del botón
         this.add.text(
             W / 2,
-            H / 2 + 60,
-            'Recarga la página para volver al menú',
+            btnY + 44,
+            'Haz clic en "Jugar de nuevo" para empezar otra partida',
             {
-                fontSize: '18px',
-                color: '#dddddd'
+                fontFamily: '"Share Tech Mono", monospace',
+                fontSize: '14px',
+                color: '#dddddd',
+                shadow: {
+                    offsetX: 0,
+                    offsetY: 0,
+                    color: '#00f5ff',
+                    blur: 2,
+                    stroke: true,
+                    fill: true
+                }
             }
         ).setOrigin(0.5);
     }
+
 
     // ==== UPDATE ====
     update() {
