@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>CleanSea - Batalla por el Océano Limpio</title>
+
+    <!-- Fuentes retro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: #020817;
+            --bg-panel: #020b1c;
+            --accent: #00f5ff;
+            --accent-soft: #0ea5e9;
+            --text-main: #e5f3ff;
+            --text-soft: #9fb9d9;
+            --danger: #ff4f7b;
+            --success: #22c55e;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #02152f 0, #01060f 42%, #000 100%);
+            color: var(--text-main);
+            font-family: "Share Tech Mono", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .shell {
+            width: 100%;
+            max-width: 1220px;
+            padding: 16px;
+            /* el acolchado ahora está dentro del contenedor, no en el body */
+        }
+
+        /* ===== HUD superior ===== */
+        .hud {
+            background: radial-gradient(circle at top left, #031937 0, #020714 46%, #020412 100%);
+            border-radius: 18px;
+            border: 2px solid rgba(56, 189, 248, 0.5);
+            padding: 14px 20px 12px;
+            box-shadow:
+                0 0 0 1px rgba(15, 23, 42, 0.7),
+                0 0 24px rgba(56, 189, 248, 0.35);
+        }
+
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .hud-left {
+            max-width: 70%;
+        }
+
+        .hud-title {
+            font-family: "Press Start 2P", system-ui;
+            font-size: 33px;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            text-shadow:
+                0 0 6px rgba(34, 211, 238, 0.9),
+                0 0 14px rgba(8, 47, 73, 0.9);
+        }
+
+        .hud-subtitle {
+            margin-top: 4px;
+            font-size: 18px;
+            color: var(--text-soft);
+        }
+
+        .hud-desc {
+            margin-top: 6px;
+            font-size: 13.5px;
+            color: var(--text-soft);
+        }
+
+        .hud-tags {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag-pill {
+            border-radius: 999px;
+            padding: 5px 11px;
+            font-size: 10.7px;
+            border: 1px solid rgba(56, 189, 248, 0.6);
+            background: radial-gradient(circle at top, #02152f 0, #020617 100%);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+        }
+
+        .tag-label {
+            text-transform: uppercase;
+            letter-spacing: 0.13em;
+            opacity: 0.7;
+            margin-right: 4px;
+            font-size: 15px;
+        }
+
+        .tag-strong {
+            color: #f9fbff;
+        }
+
+        .hud-right {
+            font-family: "Press Start 2P", system-ui;
+            font-size: 14px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            padding-top: 4px;
+            color: var(--text-main);
+        }
+
+        #score-display,
+        #timer-display {
+            white-space: nowrap;
+        }
+
+        .hud-right b {
+            color: var(--accent);
+        }
+
+        /* ===== Marco del juego ===== */
+        .game-frame {
+            margin-top: 12px;
+            background: radial-gradient(circle at top, #020c1f 0, #020617 40%, #000 100%);
+            border-radius: 18px;
+            padding: 10px;
+            border: 1px solid #020617;
+            box-shadow:
+                0 18px 40px rgba(0, 0, 0, 0.85),
+                0 0 0 1px rgba(15, 23, 42, 0.9);
+        }
+
+        #game-container {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.8);
+
+            /* centrar el canvas dentro del contenedor */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* El canvas que crea Phaser se centra y nunca se desborda */
+        #game-container canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .shell {
+                padding: 8px;
+            }
+
+            .hud-title {
+                font-size: 18px;
+            }
+
+            .hud-right {
+                font-size: 11px;
+                flex-direction: column;
+                align-items: flex-end;
+            }
+        }
+    </style>
+
+    <!-- Phaser 3 -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+</head>
+
+<body>
+    <div class="shell">
+        <header class="hud">
+            <div class="hud-top">
+                <div class="hud-left">
+                    <div class="hud-title">CleanSea</div>
+                    <div class="hud-subtitle">Batalla por el Océano Limpio</div>
+                    <div class="hud-desc">¡Compite para recoger la mayor cantidad de basura marina mientras evitas
+                        golpear a los animales!</div>
+
+                    <div class="hud-tags">
+                        <div class="tag-pill">
+                            <span class="tag-label">J1 BUZO SOLAR</span>
+                            <span class="tag-strong">WASD</span>
+                        </div>
+                        <div class="tag-pill">
+                            <span class="tag-label">J2 BUZO CORAL</span>
+                            <span class="tag-strong">Flechas</span>
+                        </div>
+                        <div class="tag-pill">
+                            <span class="tag-label">OBJETIVO</span>
+                            <span class="tag-strong">Recoge basura (+1) · Evita golpear animales (-2)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hud-right">
+                    <!-- Estos textos los controla GameScene.js -->
+                    <span id="score-display">P1: 0</span>
+                    <span id="timer-display">Tiempo: 60</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="game-frame">
+            <div id="game-container"></div>
+        </main>
+    </div>
+
+    <!-- Nuestro juego -->
+    <script type="module" src="./src/main.js"></script>
+</body>
+
+</html>

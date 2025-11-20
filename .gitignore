@@ -1,0 +1,20 @@
+# --- Entornos virtuales de Python ---
+.venv/
+venv/
+env/
+
+# Cachés de Python (por si algún día metes scripts .py)
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Node (por si en el futuro usas bundlers)
+node_modules/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Config de IDEs (opcionales; si quieres compartir settings, quítalos)
+.vscode/
+.idea/
