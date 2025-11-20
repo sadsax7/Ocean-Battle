@@ -7,6 +7,9 @@ export class MenuScene extends Phaser.Scene {
         const W = this.scale.width;
         const H = this.scale.height;
 
+        // 🔍 Detectar si es móvil
+        const isMobile = !this.sys.game.device.os.desktop;
+
         // Fondo oscuro tipo panel
         this.add.rectangle(W / 2, H / 2, W, H, 0x020817);
 
@@ -93,9 +96,8 @@ export class MenuScene extends Phaser.Scene {
 
         // ===== BOTONES =====
         const btnY1 = rulesText.y + 100;
-        const btnY2 = btnY1 + 74;
 
-        // Botón 1 jugador
+        // Botón 1 jugador (siempre)
         this.createMenuButton(
             W / 2,
             btnY1,
@@ -105,107 +107,121 @@ export class MenuScene extends Phaser.Scene {
             () => this.startGame(1)
         );
 
-        // Botón 2 jugadores
-        this.createMenuButton(
-            W / 2,
-            btnY2,
-            '🎮🎮  2 jugadores',
-            0x059669,   // verde mar
-            0x22c55e,   // borde / glow
-            () => this.startGame(2)
-        );
+        // Botón 2 jugadores SOLO en escritorio
+        if (!isMobile) {
+            const btnY2 = btnY1 + 74;
+            this.createMenuButton(
+                W / 2,
+                btnY2,
+                '🎮🎮  2 jugadores',
+                0x059669,   // verde mar
+                0x22c55e,   // borde / glow
+                () => this.startGame(2)
+            );
+        }
 
         // Texto de ayuda abajo
-        this.add.text(
-            W / 2,
-            H - 40,
-            'Pulsa 1 o 2 en el teclado para elegir modo',
-            {
-                fontFamily: '"Share Tech Mono", monospace',
-                fontSize: '15px',
-                color: '#9fb9d9'
-            }
-        ).setOrigin(0.5);
+        if (isMobile) {
+            this.add.text(
+                W / 2,
+                H - 40,
+                'Toca "1 jugador" para empezar',
+                {
+                    fontFamily: '"Share Tech Mono", monospace',
+                    fontSize: '15px',
+                    color: '#9fb9d9'
+                }
+            ).setOrigin(0.5);
+        } else {
+            this.add.text(
+                W / 2,
+                H - 40,
+                'Pulsa 1 o 2 en el teclado para elegir modo',
+                {
+                    fontFamily: '"Share Tech Mono", monospace',
+                    fontSize: '15px',
+                    color: '#9fb9d9'
+                }
+            ).setOrigin(0.5);
 
-        // Atajos teclado
-        this.input.keyboard.on('keydown-ONE', () => this.startGame(1));
-        this.input.keyboard.on('keydown-TWO', () => this.startGame(2));
-
+            // Atajos teclado SOLO en PC
+            this.input.keyboard.on('keydown-ONE', () => this.startGame(1));
+            this.input.keyboard.on('keydown-TWO', () => this.startGame(2));
+        }
     }
 
     createMenuButton(x, y, label, baseColor, glowColor, onClick) {
-    const width = 260;
-    const height = 56;
+        const width = 260;
+        const height = 56;
 
-    // Contenedor centrado
-    const container = this.add.container(x, y);
+        // Contenedor centrado
+        const container = this.add.container(x, y);
 
-    // Fondo del botón
-    const g = this.add.graphics();
-    g.lineStyle(2, glowColor, 1);
-    g.fillStyle(baseColor, 1);
-    g.fillRoundedRect(-width / 2, -height / 2, width, height, 22);
+        // Fondo del botón
+        const g = this.add.graphics();
+        g.lineStyle(2, glowColor, 1);
+        g.fillStyle(baseColor, 1);
+        g.fillRoundedRect(-width / 2, -height / 2, width, height, 22);
 
-    // Brillo superior (como luz del agua)
-    g.fillGradientStyle(
-        0xffffff, 0xdbeafe,
-        baseColor, baseColor,
-        0.28
-    );
-    g.fillRoundedRect(-width / 2 + 3, -height / 2 + 3, width - 6, height / 2.4, 18);
+        // Brillo superior (como luz del agua)
+        g.fillGradientStyle(
+            0xffffff, 0xdbeafe,
+            baseColor, baseColor,
+            0.28
+        );
+        g.fillRoundedRect(-width / 2 + 3, -height / 2 + 3, width - 6, height / 2.4, 18);
 
-    // Texto
-    const txt = this.add.text(0, 2, label, {
-        fontFamily: '"Share Tech Mono", monospace',
-        fontSize: '20px',
-        color: '#eefdff',
-        align: 'center'
-    }).setOrigin(0.5);
+        // Texto
+        const txt = this.add.text(0, 2, label, {
+            fontFamily: '"Share Tech Mono", monospace',
+            fontSize: '20px',
+            color: '#eefdff',
+            align: 'center'
+        }).setOrigin(0.5);
 
-    container.add([g, txt]);
+        container.add([g, txt]);
 
-    // HITBOX COMPLETO
-    // Le decimos al container qué tamaño tiene y dejamos que Phaser
-    // genere el área interactiva centrada. Nada de rectángulos raros.
-    container.setSize(width, height);
-    container.setInteractive({ useHandCursor: true });
+        // HITBOX COMPLETO
+        container.setSize(width, height);
+        container.setInteractive({ useHandCursor: true });
 
-    // Hover
-    container.on('pointerover', () => {
-        this.tweens.add({
-            targets: container,
-            scaleX: 1.05,
-            scaleY: 1.05,
-            duration: 120,
-            ease: 'Sine.easeOut'
+        // Hover
+        container.on('pointerover', () => {
+            this.tweens.add({
+                targets: container,
+                scaleX: 1.05,
+                scaleY: 1.05,
+                duration: 120,
+                ease: 'Sine.easeOut'
+            });
         });
-    });
 
-    container.on('pointerout', () => {
-        this.tweens.add({
-            targets: container,
-            scaleX: 1,
-            scaleY: 1,
-            duration: 120,
-            ease: 'Sine.easeIn'
+        container.on('pointerout', () => {
+            this.tweens.add({
+                targets: container,
+                scaleX: 1,
+                scaleY: 1,
+                duration: 120,
+                ease: 'Sine.easeIn'
+            });
         });
-    });
 
-    // Click
-    container.on('pointerdown', () => {
-        this.tweens.add({
-            targets: container,
-            scaleX: 0.97,
-            scaleY: 0.97,
-            yoyo: true,
-            duration: 90,
-            ease: 'Quad.easeOut',
-            onComplete: onClick
+        // Click
+        container.on('pointerdown', () => {
+            this.tweens.add({
+                targets: container,
+                scaleX: 0.97,
+                scaleY: 0.97,
+                yoyo: true,
+                duration: 90,
+                ease: 'Quad.easeOut',
+                onComplete: onClick
+            });
         });
-    });
 
-    return container;
-}
+        return container;
+    }
+
     startGame(numPlayers) {
         this.scene.start('GameScene', { numPlayers });
     }
