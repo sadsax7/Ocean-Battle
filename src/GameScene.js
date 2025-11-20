@@ -105,7 +105,7 @@ export class GameScene extends Phaser.Scene {
         // === HUD HTML (marcador y tiempo) ===
         this.scoreP1 = 0;
         this.scoreP2 = 0;
-        this.timeLeft = 2;
+        this.timeLeft = 60; // segundos
 
         this.scoreDisplayEl = document.getElementById('score-display');
         this.timerDisplayEl = document.getElementById('timer-display');
