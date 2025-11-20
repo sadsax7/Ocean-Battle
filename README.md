@@ -52,4 +52,14 @@ Todo con estética **pixel art** y una interfaz tipo **arcade retro** en la part
 - Click en **“1 jugador”** o **“2 jugadores”** con el mouse  
 - Atajos de teclado:
   - `1` → Iniciar en modo 1 jugador
+<<<<<<< HEAD
   - `2` → Iniciar en modo 1v1 (2 jugadores)git
+  
+================================================================================================================================================================
+ 
+<p align="center">
+  <a href="https://sadsax7.github.io/Ocean-Battle/" target="_blank">
+    <img src="https://img.shields.io/badge/%E2%96%B6%20Jugar%20CleanSea-00bcd4?style=for-the-badge&logo=github&logoColor=white" alt="Jugar CleanSea">
+  </a>
+</p>
+================================================================================================================================================================
