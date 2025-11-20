@@ -349,7 +349,15 @@ export class GameScene extends Phaser.Scene {
 
         // Peces un poco más grandes
         fish.setScale(1.15);
+
+        // HITBOX MÁS PEQUEÑO
+        // usar sólo el 10% del ancho/alto visual del pez
+        const bodyWidth = fish.width * 0.1;
+        const bodyHeight = fish.height * 0.1;
+
+        fish.body.setSize(bodyWidth, bodyHeight, true); // true = centrado
     }
+
 
     // ==== Penalización por golpear peces ====
     hitFish(playerNumber, fish) {
